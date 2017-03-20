@@ -8,6 +8,8 @@
 
 #define INLINE inline __attribute__((always_inline))
 
+extern "C" int create_opencl_context(void *user_context, cl_context *ctx, cl_command_queue *q);
+
 namespace Halide { namespace Runtime { namespace Internal { namespace OpenCL {
 
 // Define the function pointers for the OpenCL API. OpenCL 1.2
@@ -68,7 +70,7 @@ WEAK void load_libopencl(void *user_context) {
 extern WEAK halide_device_interface opencl_device_interface;
 
 WEAK const char *get_opencl_error_name(cl_int err);
-WEAK int create_opencl_context(void *user_context, cl_context *ctx, cl_command_queue *q);
+//extern "C" WEAK int create_opencl_context(void *user_context, cl_context *ctx, cl_command_queue *q);
 
 // An OpenCL context/queue/synchronization lock defined in
 // this module with weak linkage
