@@ -402,6 +402,9 @@ public:
      * been rescheduled. */
     EXPORT void invalidate_cache();
 
+    /** Get the address of a jitted function symbol
+    */
+    EXPORT void * get_symbol(const char * sym);
 private:
     std::string generate_function_name() const;
     std::vector<Argument> build_public_args(const std::vector<Argument> &args, const Target &target) const;

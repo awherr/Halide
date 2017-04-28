@@ -130,6 +130,9 @@ WEAK const char *halide_opencl_get_device_type(void *user_context) {
     return device_type;
 }
 
+static cl_context override_ctx = NULL;
+static cl_command_queue override_q = NULL;
+
 // The default implementation of halide_acquire_cl_context uses the global
 // pointers above, and serializes access with a spin lock.
 // Overriding implementations of acquire/release must implement the following
@@ -151,21 +154,27 @@ WEAK int halide_acquire_cl_context(void *user_context, cl_context *ctx, cl_comma
     // If the context has not been initialized, initialize it now.
     halide_assert(user_context, &context != NULL);
     halide_assert(user_context, &command_queue != NULL);
-    if (!context && create) {
+    if (!context && create && override_ctx == NULL && override_q == NULL) {
         cl_int error = create_opencl_context(user_context, &context, &command_queue);
         if (error != CL_SUCCESS) {
             __sync_lock_release(&thread_lock);
             return error;
         }
     }
+    *ctx = (override_ctx) ? override_ctx : context;
+    *q = (override_q) ? override_q : command_queue;
+    return 0;
+}
 
-    *ctx = context;
-    *q = command_queue;
+WEAK int halide_override_cl_context(cl_context ctx, cl_command_queue q) {
+    override_ctx = ctx;
+    override_q = q;
     return 0;
 }
 
 WEAK int halide_release_cl_context(void *user_context) {
-    __sync_lock_release(&thread_lock);
+    if(!override_ctx && !override_q)
+        __sync_lock_release(&thread_lock);
     return 0;
 }
 

@@ -1267,6 +1267,11 @@ void Pipeline::invalidate_cache() {
     }
 }
 
+void * Pipeline::get_symbol(const char * sym)
+{
+    return (defined()) ? contents->jit_module.find_symbol_by_name(sym).address : nullptr;
+}
+
 JITExtern::JITExtern(Pipeline pipeline)
     : pipeline(pipeline), c_function(nullptr) {
 }
